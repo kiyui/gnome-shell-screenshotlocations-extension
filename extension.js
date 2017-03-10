@@ -1,22 +1,36 @@
 /* global imports print */
 
-const gio = imports.gi.Gio
-const gnomeScreenshot = new gio.Settings({
+const Main = imports.ui.main
+const Gio = imports.gi.Gio
+const Meta = imports.gi.Meta
+const Shell = imports.gi.Shell
+
+const defaultKeys = ['area-screenshot', 'area-screenshot-clip', 'screenshot', 'screenshot-clip', 'window-screenshot', 'window-screenshot-clip']
+
+const screenshotSchema = new Gio.Settings({
   schema: 'org.gnome.gnome-screenshot'
 })
 
-function _setScreenshotLocation (location) {
-  if (gnomeScreenshot.set_string('auto-save-directory', location)) {
-    gio.Settings.sync()
-    print('Updated screenshot location to: ' + location)
+const shortcutSchema = new Gio.Settings({
+  schema: 'org.gnome.settings-daemon.plugins.media-keys'
+})
+
+function enable () { // eslint-disable-line no-unused-vars
+  defaultKeys.map(key => {
+    if (shortcutSchema.set_string(key, '')) {
+      Gio.Settings.sync()
+    }
+  })
+
+  if (Main.wm.addKeybinding && Shell.ActionMode) {
+    Main.wm.addKeybinding('screenshot', shortcutSchema, Meta.KeyBindingFlags.NONE, Shell.ActionMode.NORMAL, function () {
+      print('This has never, will never, shall never work')
+    })
   }
 }
 
-function enable () { // eslint-disable-line no-unused-vars
-  const location = gnomeScreenshot.get_string('auto-save-directory')
-  print('Current screenshot location set to: ' + location)
-  _setScreenshotLocation(new Date().toLocaleString())
-}
-
 function disable () { // eslint-disable-line no-unused-vars
+  defaultKeys.map(key => {
+    shortcutSchema.reset(key) // Reset all screenshot keys
+  })
 }
