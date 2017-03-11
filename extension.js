@@ -38,6 +38,10 @@ const screenshotKeys = [
   }
 ]
 
+const schema = new Gio.Settings({
+  schema: 'org.gnome.gnome-screenshot'
+})
+
 const shortcutSchema = new Gio.Settings({
   schema: 'org.gnome.settings-daemon.plugins.media-keys'
 })
@@ -49,7 +53,16 @@ function enable () { // eslint-disable-line no-unused-vars
     if (shortcutSchema.set_string(screenshotKey.name, '')) {
       Gio.Settings.sync()
       keybinder.add(screenshotKey.name, screenshotKey.shortcut, function () {
-        print('Running command: ' + screenshotKey.command)
+        const location = schema.get_string('auto-save-directory')
+        const fileType = schema.get_string('default-file-type')
+
+        const directory = location.endsWith('/') ? location : location + '/'
+        const file = directory + new Date().getTime()
+
+        const command = screenshotKey.command + ' -f ' + file + '.' + fileType
+
+        print('Running print command: ' + command)
+        GLib.spawn_command_line_async(command)
       })
     }
   })
