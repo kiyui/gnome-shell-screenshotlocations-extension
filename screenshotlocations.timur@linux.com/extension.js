@@ -46,9 +46,8 @@ const shortcutSchema = new Gio.Settings({
   schema: 'org.gnome.settings-daemon.plugins.media-keys'
 })
 
-const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
-
 function enable () { // eslint-disable-line no-unused-vars
+  const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
   screenshotKeys.map(screenshotKey => {
     if (shortcutSchema.set_string(screenshotKey.name, '')) {
       Gio.Settings.sync()
@@ -70,6 +69,7 @@ function enable () { // eslint-disable-line no-unused-vars
 }
 
 function disable () { // eslint-disable-line no-unused-vars
+  const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
   keybinder.disable()
   screenshotKeys.map(screenshotKey => {
     shortcutSchema.reset(screenshotKey.name) // Reset all screenshot keys
