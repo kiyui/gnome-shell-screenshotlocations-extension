@@ -2,6 +2,9 @@
 Override GNOME's screenshot functionality to use a custom path as the current gsetting value
 does not reflect on the `gnome-screenshot` utility as it used to.
 
+## download
+You can enable the extension [here](https://extensions.gnome.org/extension/1179/screenshot-locations/).
+
 ## what it does
 Upon enabling the extension, it disables all default screenshot keys defined in
 `org.gnome.settings-daemon.plugins.media-keys` and overrides the default screenshot
