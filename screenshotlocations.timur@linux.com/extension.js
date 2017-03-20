@@ -59,9 +59,11 @@ function enable () { // eslint-disable-line no-unused-vars
         const file = directory + new Date().getTime()
 
         const command = screenshotKey.command + ' -f ' + file + '.' + fileType
+        const soundCommand = 'paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga'
 
         print('Running print command: ' + command)
         GLib.spawn_command_line_async(command)
+        GLib.spawn_command_line_async(soundCommand)
       })
     }
   })
@@ -70,8 +72,11 @@ function enable () { // eslint-disable-line no-unused-vars
 
 function disable () { // eslint-disable-line no-unused-vars
   const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
-  keybinder.disable()
   screenshotKeys.map(screenshotKey => {
     shortcutSchema.reset(screenshotKey.name) // Reset all screenshot keys
+    keybinder.add(screenshotKey.name, screenshotKey.shortcut, function () {
+      print('Swallow keybinding')
+    })
   })
+  keybinder.disable()
 }
