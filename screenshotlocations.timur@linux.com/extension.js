@@ -52,18 +52,7 @@ function enable () { // eslint-disable-line no-unused-vars
     if (shortcutSchema.set_string(screenshotKey.name, '')) {
       Gio.Settings.sync()
       keybinder.add(screenshotKey.name, screenshotKey.shortcut, function () {
-        const location = schema.get_string('auto-save-directory')
-        const fileType = schema.get_string('default-file-type')
-
-        const directory = location.endsWith('/') ? location : location + '/'
-        const file = directory + new Date().getTime()
-
-        const command = screenshotKey.command + ' -f ' + file + '.' + fileType
-        const soundCommand = 'paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga'
-
-        print('Running print command: ' + command)
-        GLib.spawn_command_line_async(command)
-        GLib.spawn_command_line_async(soundCommand)
+        GLib.spawn_command_line_async(screenshotKey.command)
       })
     }
   })
@@ -74,9 +63,6 @@ function disable () { // eslint-disable-line no-unused-vars
   const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
   screenshotKeys.map(screenshotKey => {
     shortcutSchema.reset(screenshotKey.name) // Reset all screenshot keys
-    keybinder.add(screenshotKey.name, screenshotKey.shortcut, function () {
-      print('Swallow keybinding')
-    })
   })
   keybinder.disable()
 }
