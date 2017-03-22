@@ -15,7 +15,5 @@ with the keys `auto-save-directory` and `default-file-type`. You can customize t
 save directory with the extension preference tool. A valid example would be
 `/home/timur/Pictures/Screenshots` for instance.
 
-The screenshot is saved in UNIX time by default.
-
 ## acknowledgement
 This extension makes use of the excellent [gnome-shell-keybinder](https://github.com/rliang/gnome-shell-keybinder) library.
