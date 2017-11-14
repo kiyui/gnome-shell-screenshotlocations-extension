@@ -4,6 +4,7 @@
     "uuid": "screenshotlocations.timur@linux.com",
     "url": "https://github.com/TimurKiyivinski/gnome-shell-screenshotlocations-extension",
     "shell-version": [
+        "3.26",
         "3.24",
         "3.22",
         "3.20",
