@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.screenshotlocations" path="/org/gnome/shell/extensions/screenshotlocations/">
+    <key name="save-directory" type="s">
+      <default>''</default>
+      <summary>Screenshot directory</summary>
+      <description>Manage where screenshots are saved</description>
+    </key>
+  </schema>
+</schemalist>

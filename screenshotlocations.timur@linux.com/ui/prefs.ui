@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.1 -->
+<interface>
+  <requires lib="gtk+" version="3.22"/>
+  <requires lib="libhandy" version="0.0"/>
+  <template class="ScreenshotLocationsExtensionPrefs" parent="GtkListBox">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="selection-mode">none</property>
+    <child>
+      <object class="HdyActionRow">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="title" translatable="yes">Screenshot directory</property>
+        <property name="subtitle" translatable="yes">Manage where screenshots are saved</property>
+        <child type="action">
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="valign">center</property>
+            <child>
+              <object class="GtkFileChooserButton" id="path_chooser">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="action">select-folder</property>
+                <property name="title" translatable="yes"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

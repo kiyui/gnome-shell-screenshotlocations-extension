@@ -2,9 +2,11 @@
   "name": "gnome-shell-screenshotlocations-extension",
   "description": "Change the default GNOME screenshot directory",
   "scripts": {
+    "build:resources": "glib-compile-resources --sourcedir screenshotlocations.timur@linux.com/ screenshotlocations.timur@linux.com/org.gnome.shell.extensions.screenshotlocations.data.gresource.xml",
+    "build:schema": "glib-compile-schemas screenshotlocations.timur@linux.com/schemas/",
     "build:link": "ln -s $(pwd)/screenshotlocations.timur@linux.com/ ~/.local/share/gnome-shell/extensions/",
     "build:zip": "cd screenshotlocations.timur@linux.com/ && zip -r ../screenshotlocations.timur@linux.com.zip ./*",
-    "build": "npm run build:zip"
+    "build": "npm run build:resources && npm run build:schema && npm run build:zip"
   },
   "repository": {
     "type": "git",
