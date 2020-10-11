@@ -1,14 +1,13 @@
 {
-    "name": "Screenshot Locations",
-    "description": "Change the default GNOME screenshot directory",
-    "uuid": "screenshotlocations.timur@linux.com",
-    "url": "https://github.com/TimurKiyivinski/gnome-shell-screenshotlocations-extension",
-    "shell-version": [
-        "3.26",
-        "3.24",
-        "3.22",
-        "3.20",
-        "3.18",
-        "3.16"
-    ]
+  "uuid": "screenshotlocations.timur@linux.com",
+  "name": "Screenshot Locations",
+  "description": "Change the default GNOME screenshot directory",
+  "data-gresource": "org.gnome.shell.extensions.screenshotlocations.data.gresource",
+  "settings-schema": "org.gnome.shell.extensions.screenshotlocations",
+  "version": 7,
+  "shell-version": [
+    "3.36",
+    "3.38"
+  ],
+  "url": "https://github.com/kiyui/gnome-shell-screenshotlocations-extension"
 }

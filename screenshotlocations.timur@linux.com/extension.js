@@ -1,68 +1,66 @@
-/* global imports print */
+/* extension.js
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
-const Me = imports.misc.extensionUtils.getCurrentExtension()
-const Gio = imports.gi.Gio
-const GLib = imports.gi.GLib
-const Keybinder = Me.imports.keybinder.keybinder.default
+/* exported init */
 
-const screenshotKeys = [
-  {
-    name: 'area-screenshot',
-    shortcut: '<Shift>Print',
-    command: 'gnome-screenshot -a'
-  },
-  {
-    name: 'area-screenshot-clip',
-    shortcut: '<Ctrl><Shift>Print',
-    command: 'gnome-screenshot -a -c'
-  },
-  {
-    name: 'screenshot',
-    shortcut: 'Print',
-    command: 'gnome-screenshot'
-  },
-  {
-    name: 'screenshot-clip',
-    shortcut: '<Ctrl>Print',
-    command: 'gnome-screenshot -c'
-  },
-  {
-    name: 'window-screenshot',
-    shortcut: '<Alt>Print',
-    command: 'gnome-screenshot -w'
-  },
-  {
-    name: 'window-screenshot-clip',
-    shortcut: '<Ctrl><Alt>Print',
-    command: 'gnome-screenshot -w -c'
-  }
-]
+const {Gio, GLib} = imports.gi;
+const Main = imports.ui.main;
+const ExtensionUtils = imports.misc.extensionUtils;
 
-const schema = new Gio.Settings({
-  schema: 'org.gnome.gnome-screenshot'
-})
-
-const shortcutSchema = new Gio.Settings({
-  schema: 'org.gnome.settings-daemon.plugins.media-keys'
-})
-
-function enable () { // eslint-disable-line no-unused-vars
-  const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
-  screenshotKeys.map(screenshotKey => {
-    if (shortcutSchema.set_string(screenshotKey.name, '')) {
-      Gio.Settings.sync()
-      keybinder.add(screenshotKey.name, screenshotKey.shortcut, function () {
-        GLib.spawn_command_line_async(screenshotKey.command)
-      })
+class Extension {
+    constructor() {
+        this._preferences = ExtensionUtils.getSettings();
     }
-  })
-  keybinder.enable()
+
+    enable() {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => {
+            Main.shellDBusService._screenshotService._original_resolveRelativeFilename = Main.shellDBusService._screenshotService._resolveRelativeFilename;
+            Main.shellDBusService._screenshotService._resolveRelativeFilename = this._resolveRelativeFilenameOverride.bind(this);
+        });
+    }
+
+    disable() {
+        Main.shellDBusService._screenshotService._resolveRelativeFilename = Main.shellDBusService._screenshotService._original_resolveRelativeFilename;
+        delete Main.shellDBusService._screenshotService._original_resolveRelativeFilename;
+    }
+
+    *_resolveRelativeFilenameOverride(filename) {
+        filename = filename.replace(/\.png$/, '');
+
+        let path = [
+            this._preferences.get_string('save-directory'),
+            GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_PICTURES),
+            GLib.get_home_dir(),
+        ].find(p => GLib.file_test(p, GLib.FileTest.EXISTS));
+
+        if (!path)
+            return null;
+
+        yield Gio.File.new_for_path(
+            GLib.build_filenamev([path, `${filename}.png`]));
+
+        for (let idx = 1; ; idx++) {
+            yield Gio.File.new_for_path(
+                GLib.build_filenamev([path, `${filename}-${idx}.png`]));
+        }
+    }
 }
 
-function disable () { // eslint-disable-line no-unused-vars
-  const keybinder = new Keybinder('screenshotlocations', GLib.get_tmp_dir())
-  screenshotKeys.map(screenshotKey => {
-    shortcutSchema.reset(screenshotKey.name) // Reset all screenshot keys
-  })
-  keybinder.disable()
+function init() {
+    return new Extension();
 }

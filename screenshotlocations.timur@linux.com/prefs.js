@@ -1,49 +1,67 @@
-/* global imports print */
+/* prefs.js
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
-const Gio = imports.gi.Gio
-const Gtk = imports.gi.Gtk
+/* exported buildPrefsWidget init */
 
-function buildPrefsWidget () { // eslint-disable-line no-unused-vars
-  // Get screenshot save location
-  const schema = new Gio.Settings({
-    schema: 'org.gnome.gnome-screenshot'
-  })
+imports.gi.versions.Gtk = '3.0';
+imports.gi.versions.Handy = '0.0';
+const {GObject, GLib, Gio, Gtk, Handy} = imports.gi;
 
-  const location = schema.get_string('auto-save-directory')
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
-  const vbox = new Gtk.Box({
-    orientation: Gtk.Orientation.VERTICAL,
-    border_width: 10,
-    margin: 20,
-    spacing: 20
-  })
+// Register resources
+const resource = Me.metadata['data-gresource'];
+const resourceFile = Me.dir.get_child(resource);
+Gio.resources_register(Gio.Resource.load(resourceFile.get_path()));
 
-  // Create children objects
-  const entry = new Gtk.Entry({ text: location })
+var ScreenshotLocationsExtensionPrefs = GObject.registerClass({
+    GTypeName: 'ScreenshotLocationsExtensionPrefs',
+    Template: 'resource:///org/gnome/shell/extensions/screenshotlocations/ui/prefs.ui',
+    InternalChildren: [
+        'path_chooser',
+    ],
+}, class ScreenshotLocationsExtensionPrefs extends Gtk.ListBox {
+    _init(preferences) {
+        super._init();
+        this._preferences = preferences;
+        this._sync();
 
-  const save = new Gtk.Button({ label: 'Save' })
-
-  // Add objects to frame
-  vbox.add(new Gtk.Label({ label: 'Screenshot Path' }))
-  vbox.add(entry)
-  vbox.add(save)
-
-  // Handle events
-  save.connect('clicked', function () {
-    const newLocation = entry.text
-    print('Changing screenshot location to: ' + newLocation)
-
-    if (schema.set_string('auto-save-directory', newLocation)) {
-      Gio.Settings.sync()
-      print('Updated screenshot location to: ' + newLocation)
-      Gtk.main_quit()
+        this._preferences.connect('changed', this._sync.bind(this));
+        this._path_chooser.connect('file-set',
+            self => this._preferences.set_string('save-directory', self.get_file().get_path()));
     }
-  })
 
-  vbox.show_all()
-  return vbox
+    _sync() {
+        const p = this._preferences.get_string('save-directory');
+        if (GLib.file_test(p, GLib.FileTest.EXISTS)) {
+            const file = Gio.File.new_for_path(p);
+            this._path_chooser.set_file(file);
+        }
+    }
+});
+
+function buildPrefsWidget() {
+    const preferences = ExtensionUtils.getSettings();
+    return new ScreenshotLocationsExtensionPrefs(preferences);
 }
 
-function init () { // eslint-disable-line no-unused-vars
-  print('Initilize screenshot location extension configuration window')
+function init() {
+    Gtk.init(null);
+    Handy.init(null);
 }

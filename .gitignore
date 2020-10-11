@@ -1,1 +1,4 @@
+node_modules/
 screenshotlocations.timur@linux.com.zip
+*.compiled
+*.gresource
