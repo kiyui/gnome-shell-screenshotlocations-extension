@@ -1,3 +1,7 @@
+# migration notice
+
+This repository has moved to [Codeberg](https://codeberg.org/kiyui/gnome-shell-screenshotlocations-extension).
+
 # gnome-screenshot-locations-extension
 
 Override GNOME's screenshot functionality to use a user-defined path, in the order of:
